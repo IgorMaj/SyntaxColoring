@@ -1,0 +1,12 @@
+#expression:
+    include: letter
+    include: paren_expression
+#letter:
+    match: "a|b|c" name: "keyword.letter"
+#paren_expression:
+    begin: "\(" names: "constant.numeric"
+    end: "\)" names: "constant.numeric"
+    name: "expression.group" (
+        include: expression
+    ) 
+start abc(expression)

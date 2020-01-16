@@ -1,0 +1,13 @@
+#element:
+    match: "#[a-z_][a-zA-Z_]*" name: "entity.name.function"
+#keyword:
+    match: "names|start|match|name|include|begin|end" name: "keyword"
+#language_elements:
+    match: "\(|\)|\:" name: "constant.language"
+#string:
+    match: "\".*?\"" name: "string"
+#comment:
+    match: "//.*?$" name: "comment"                     
+
+// this is a comment
+start clrlang(element,keyword,language_elements,string,comment)

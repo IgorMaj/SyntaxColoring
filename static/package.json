@@ -1,0 +1,25 @@
+{
+    "name": "testlang",
+    "displayName": "Test Lang",
+    "description": "Test Lang description",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.41.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "testlang",
+            "aliases": ["Test Lang", "testlang"],
+            "extensions": [".testlang"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "testlang",
+            "scopeName": "source.abc",
+            "path": "./syntaxes/abc.tmLanguage.json"
+        }]
+    }
+}
