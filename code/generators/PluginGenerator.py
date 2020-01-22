@@ -1,7 +1,6 @@
 import json
-from code.generators.TextMateGenerator import TextMateGrammarGenerator
+from .TextMateGenerator import TextMateGrammarGenerator
 from textx import metamodel_from_file
-from code.input.CommandArguments import CommandArguments
 from pathlib import Path
 from code.utils import get_home_dir, remove_dir, copy_file, dump_to_file, \
     get_filename_no_ext, value_or_default_if_none, load_json_file
@@ -11,9 +10,9 @@ ROOT_PATH = "./static"
 
 class PluginGenerator:
 
-    def __init__(self):
+    def __init__(self, args):
         self._meta_model = self._load_metamodel()
-        self._args = CommandArguments().parse_args()
+        self._args = args
         self._file_list = self._get_file_list()
         # print(self._file_list)
 
@@ -75,7 +74,3 @@ class PluginGenerator:
             else:
                 copy_file(file_path, plugin_path +
                           '/'.join(file_path.split("/")[1:]))
-
-
-if __name__ == '__main__':
-    print(PluginGenerator())
