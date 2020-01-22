@@ -1,5 +1,5 @@
 from textx import TextXSemanticError
-from code.utils import check_regex, raise_semantic_error
+from ..utils import check_regex, raise_semantic_error
 import json
 
 
