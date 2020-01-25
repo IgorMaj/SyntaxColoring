@@ -21,7 +21,8 @@ PatternId:
 ;
 
 PatternStatement:
-    include=IncludeStatement | match=MatchStatement | compound=CompoundStatement
+    include=IncludeStatement | match=MatchStatement | compound=CompoundStatement |
+    match_from_file=MatchFromFileStatement
 ;
 
 IncludeStatement:
@@ -32,6 +33,10 @@ MatchStatement:
     'match' ':' regex=STRING 'name' ':' scope_name=QuotedScopeName
 ;
 
+MatchFromFileStatement:
+    'match_from_file' ':' grammar_path=STRING
+;
+
 CompoundStatement:
     'begin' ':' begin_regex=STRING 'names' ': ' begin_names+=QuotedScopeName [',']
     'end' ':' end_regex=STRING 'names' ': ' end_names+=QuotedScopeName [',']
@@ -39,5 +44,5 @@ CompoundStatement:
 ;
 
 Comment:
-  /\/\/.*$/
+  /\/\/.*$/ | /\/\*(\*(?!\/)|[^*])*\*\//
 ;

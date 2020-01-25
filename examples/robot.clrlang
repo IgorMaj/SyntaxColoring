@@ -1,0 +1,6 @@
+#robot:
+    //match: "up" name: "variable.parameter"
+    match_from_file: "examples/robot.tx"
+    //match: "up" name: "keyword"
+
+start robot(robot)

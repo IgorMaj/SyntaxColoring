@@ -72,3 +72,9 @@ def raise_semantic_error(error_msg, ast_node, model):
     line, col = model._tx_parser.pos_to_linecol(
         ast_node._tx_position)
     raise TextXSemanticError(error_msg, line=line, col=col)
+
+
+def is_keyword(str_val):
+    if not any(letter.isalnum() for letter in str_val):
+        return False
+    return True
