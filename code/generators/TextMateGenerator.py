@@ -1,5 +1,5 @@
 from textx import TextXSemanticError
-from ..utils import check_regex, raise_semantic_error, is_keyword
+from ..utils import check_regex, raise_semantic_error, is_keyword, load_jinja2_template
 import json
 from textx import metamodel_from_file
 from os.path import join, dirname
@@ -92,6 +92,29 @@ class FromTextXGrammarGenerator:
         self._generate_comments()
 
 
+class TextMateMatchStatement:
+    def __init__(self, regex, scope_name):
+        self.regex = json.dumps(regex)
+        self.scope_name = scope_name
+
+
+class TextMateCompoundStatement:
+    def __init__(self, name, begin_regex, end_regex):
+        self.name = name
+        self.begin_regex = json.dumps(begin_regex)
+        self.end_regex = json.dumps(end_regex)
+        self.begin_captures_dict = {}
+        self.end_captures_dict = {}
+
+
+class TextMatePattern:
+    def __init__(self, name):
+        self.name = name
+        self.include_statements = []
+        self.match_statements = []
+        self.compound_statements = []
+
+
 class TextMateGrammarGenerator:
 
     def __init__(self, model):
@@ -107,91 +130,89 @@ class TextMateGrammarGenerator:
             ret_val.add(grammar_pattern.name)
         return ret_val
 
-    def _generate_include_statement(self, label_set, include, patterns):
+    def _generate_include_statement(self, label_set, include, pattern):
         if include.pattern not in label_set:
             raise_semantic_error(
                 "Non existing pattern referenced: "+include.pattern,
                 ast_node=include, model=self.model)
         else:
-            patterns.append({
-                "include": "#"+include.pattern
-            })
+            pattern.include_statements.append(include.pattern)
 
     def _generate_match_from_file_statement(self, match_from_file, patterns):
         FromTextXGrammarGenerator(
             match_from_file.grammar_path, patterns).generate()
 
-    def _generate_match_statement(self, match, patterns):
+    def _generate_match_statement(self, match, pattern):
         check_regex(match.regex, ast_node=match, model=self.model)
-        patterns.append({"match": match.regex, "name": match.scope_name})
+        pattern.match_statements.append(
+            TextMateMatchStatement(match.regex, match.scope_name))
 
     def _generate_captures(self, captures_dict, names):
         for i in range(len(names)):
-            captures_dict[str(i+1)] = {"name": names[i]}
+            captures_dict[str(i+1)] = names[i]
 
-    def _generate_compound_statement(self, label_set, compound, grammar_pattern_rep):
-        grammar_pattern_rep["name"] = compound.scope_name
-
+    def _generate_compound_statement(self, label_set, compound, pattern):
         check_regex(compound.begin_regex,
                     ast_node=compound, model=self.model)
-        grammar_pattern_rep["begin"] = compound.begin_regex
-
         check_regex(compound.end_regex,
                     ast_node=compound, model=self.model)
-        grammar_pattern_rep["end"] = compound.end_regex
+        compound_statement = TextMateCompoundStatement(
+            compound.scope_name, compound.begin_regex, compound.end_regex)
+        pattern.compound_statements.append(compound_statement)
 
-        grammar_pattern_rep["beginCaptures"] = {}
-        grammar_pattern_rep["endCaptures"] = {}
         self._generate_captures(
-            grammar_pattern_rep["beginCaptures"], compound.begin_names)
+            compound_statement.begin_captures_dict, compound.begin_names)
         self._generate_captures(
-            grammar_pattern_rep["endCaptures"], compound.end_names)
+            compound_statement.end_captures_dict, compound.end_names)
 
         for statement in compound.statements:
             if statement.include:
-                self._generate_include_statement(
-                    label_set, statement.include, grammar_pattern_rep["patterns"])
+                pass
+                # self._generate_include_statement(
+                # label_set, statement.include, )
             elif statement.match:
-                self._generate_match_statement(
-                    statement.match, grammar_pattern_rep["patterns"])
+                pass
+                # self._generate_match_statement(
+                # statement.match, )
 
-    def _generate_repository(self, label_set, grammar_pattern, repository):
-        repository[grammar_pattern.name] = {"patterns": []}
-        for statement in grammar_pattern.statements:
-            if statement.include:
-                self._generate_include_statement(
-                    label_set, statement.include, repository[grammar_pattern.name]["patterns"])
-            elif statement.match:
-                self._generate_match_statement(
-                    statement.match, repository[grammar_pattern.name]["patterns"])
-            elif statement.compound:
-                self._generate_compound_statement(label_set,
-                                                  statement.compound, repository[grammar_pattern.name])
-            elif statement.match_from_file:
-                self._generate_match_from_file_statement(
-                    statement.match_from_file, repository[grammar_pattern.name])
+    def _generate_repository_patterns(self, label_set):
+        all_patterns = []
+        for grammar_pattern in self.model.grammar_patterns:
 
-    def _generate_start_patterns(self, data_dict, label_set):
-        data_dict["scopeName"] = "source."+self.model.scope_name
+            all_patterns.append(TextMatePattern(grammar_pattern.name))
+
+            for statement in grammar_pattern.statements:
+                if statement.include:
+                    self._generate_include_statement(
+                        label_set, statement.include, all_patterns[-1])
+                elif statement.match:
+                    self._generate_match_statement(
+                        statement.match, all_patterns[-1])
+                elif statement.compound:
+                    self._generate_compound_statement(label_set,
+                                                      statement.compound, all_patterns[-1])
+                elif statement.match_from_file:
+                    pass
+                    # self._generate_match_from_file_statement(
+                    # statement.match_from_file, repository[grammar_pattern.name])
+        return all_patterns
+
+    def _generate_start_patterns(self, label_set):
+        ret_val = []
         for start_expression in self.model.start_expressions:
             if start_expression not in label_set:
                 raise_semantic_error(
                     "Non existing pattern referenced: "+start_expression,
                     ast_node=start_expression, model=self.model)
-            data_dict["patterns"].append({
-                "include": "#"+start_expression
-            })
+            ret_val.append(start_expression)
+        return ret_val
 
     def generate(self):
         label_set = self._get_label_set()
-        ret_val = {
-            "scopeName": "",
-            "patterns": [],
-            "repository": {
-            }
-        }
-        for grammar_pattern in self.model.grammar_patterns:
-            self._generate_repository(
-                label_set, grammar_pattern, ret_val["repository"])
-        self._generate_start_patterns(ret_val, label_set)
-        return json.dumps(ret_val, indent=4)
+        template = load_jinja2_template("static/syntaxes/language.json")
+        start_patterns = self._generate_start_patterns(label_set)
+        all_patterns = self._generate_repository_patterns(label_set)
+        return template.render(
+            name=self.model.scope_name,
+            start_patterns=start_patterns,
+            all_patterns=all_patterns)

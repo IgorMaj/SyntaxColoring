@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import os
 import json
+import jinja2
 
 
 def is_regex_valid(regex):
@@ -78,3 +79,10 @@ def is_keyword(str_val):
     if not any(letter.isalnum() for letter in str_val):
         return False
     return True
+
+
+def load_jinja2_template(template_path):
+    templateLoader = jinja2.FileSystemLoader(searchpath="./")
+    templateEnv = jinja2.Environment(loader=templateLoader)
+    template = templateEnv.get_template(template_path)
+    return template

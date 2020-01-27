@@ -1,0 +1,83 @@
+{
+  "name": "{{name}}",
+  "scopeName": "source.{{name}}",
+  "patterns": [
+    {%- for pattern in start_patterns %}
+        {
+          "include": "#{{pattern}}"
+        }
+        {%- if loop.index != start_patterns|length -%}
+          ,
+        {%- endif -%}
+    {% endfor %}
+  ],
+  "repository": {
+      {% for pattern in all_patterns -%}
+        "{{pattern.name}}": {
+            "patterns": [
+                {% for include_statement in pattern.include_statements -%}
+                {
+                  "include": "#{{include_statement}}"
+                }
+                  {%- if loop.index != pattern.include_statements|length -%}
+                    ,
+                  {%- endif -%}
+                {% endfor %}
+                {%- if ( (pattern.match_statements|length != 0)  and 
+                   ( pattern.include_statements|length != 0) )  -%}
+                    ,
+                {% endif %}
+                {%- for match_statement in pattern.match_statements -%}
+                {
+                  "match": {{match_statement.regex}},
+                  "name": "{{match_statement.scope_name}}" 
+                }
+                  {%- if loop.index != pattern.match_statements|length -%}
+                    ,
+                  {%- endif -%}
+                {% endfor %}
+                {%- if ( (pattern.match_statements|length != 0)  and 
+                   ( pattern.compound_statements|length != 0) )  -%}
+                    ,
+                {% endif %}
+                {%- for compound_statement in pattern.compound_statements -%}
+                {
+                  "name": "{{-compound_statement.name-}}",
+                  "begin": {{-compound_statement.begin_regex-}},
+                  "end": {{-compound_statement.end_regex-}},
+                  "beginCaptures": {
+                    {%- for begin_key,begin_value in compound_statement.begin_captures_dict.items() -%}
+                    "{{begin_key}}": {
+                      "name": "{{begin_value}}"
+                      }
+                        {%- if loop.index != compound_statement.begin_captures_dict.items()|length -%}
+                          ,
+                        {%- endif -%}
+                       {% endfor %}
+                  },
+                  "endCaptures": {
+                    {%- for end_key,end_value in compound_statement.end_captures_dict.items() -%}
+                    "{{end_key}}": {
+                      "name": "{{end_value}}"
+                    }
+                        {%- if loop.index != compound_statement.end_captures_dict.items()|length -%}
+                          ,
+                        {%- endif -%}
+                       {% endfor %}
+                  },
+                  "patterns": [
+                  ] 
+                }
+                  {%- if loop.index != pattern.compound_statements|length -%}
+                    ,
+                  {%- endif -%}
+                {% endfor %}
+
+            ]
+        }
+        {%- if loop.index != all_patterns|length -%}
+          ,
+        {% endif %}
+    {%- endfor -%}
+  }
+}
