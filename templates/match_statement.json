@@ -1,0 +1,4 @@
+{
+    "match": {{match_statement.regex}},
+    "name": "{{match_statement.scope_name}}" 
+}

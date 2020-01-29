@@ -14,8 +14,7 @@
 #comment_block:
     begin: "\/\*" names: "comment"
     end: "\*\/" names: "comment"
-    name: "comment.block" (
-    )   
+    name: "comment.block" ()
    
 // this is a comment
 start clrlang(element,keyword,language_elements,string,comment)

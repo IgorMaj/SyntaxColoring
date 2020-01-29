@@ -86,3 +86,7 @@ def load_jinja2_template(template_path):
     templateEnv = jinja2.Environment(loader=templateLoader)
     template = templateEnv.get_template(template_path)
     return template
+
+
+def pretty_render(json_str):
+    return json.dumps(json.loads(json_str), indent=4)

@@ -1,0 +1,8 @@
+{% macro show_statements(pattern)%}
+              {% for statement in pattern.statements -%}
+              {{statement|string()}}
+              {%- if loop.index != pattern.statements|length -%}
+                ,
+              {%- endif -%}
+              {% endfor %}
+{%endmacro%}

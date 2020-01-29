@@ -1,0 +1,29 @@
+{% from "templates/macros.jinja2" import show_statements with context %}
+{
+    "name": "{{-compound_statement.name-}}",
+    "begin": {{-compound_statement.begin_regex-}},
+    "end": {{-compound_statement.end_regex-}},
+     "beginCaptures": {
+      {%- for begin_key,begin_value in compound_statement.begin_captures_dict.items() -%}
+      "{{begin_key}}": {
+            "name": "{{begin_value}}"
+       }
+       {%- if loop.index != compound_statement.begin_captures_dict.items()|length -%}
+       ,
+       {%- endif -%}
+       {% endfor %}
+       },
+       "endCaptures": {
+       {%- for end_key,end_value in compound_statement.end_captures_dict.items() -%}
+       "{{end_key}}": {
+           "name": "{{end_value}}"
+        }
+        {%- if loop.index != compound_statement.end_captures_dict.items()|length -%}
+         ,
+        {%- endif -%}
+        {% endfor %}
+        },
+        "patterns": [
+            {{show_statements(compound_statement)}}
+        ] 
+}

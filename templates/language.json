@@ -1,0 +1,27 @@
+{% from "templates/macros.jinja2" import show_statements with context %}
+{
+  "name": "{{name}}",
+  "scopeName": "source.{{name}}",
+  "patterns": [
+    {%- for pattern in start_patterns %}
+        {
+          "include": "#{{pattern}}"
+        }
+        {%- if loop.index != start_patterns|length -%}
+          ,
+        {%- endif -%}
+    {% endfor %}
+  ],
+  "repository": {
+      {% for pattern in all_patterns -%}
+        "{{pattern.name}}": {
+            "patterns": [
+                {{show_statements(pattern)}}
+            ]
+        }
+        {%- if loop.index != all_patterns|length -%}
+          ,
+        {% endif %}
+    {%- endfor -%}
+  }
+}

@@ -1,15 +1,54 @@
-from textx import TextXSemanticError
-from ..utils import check_regex, raise_semantic_error, is_keyword, load_jinja2_template
-import json
-from textx import metamodel_from_file
 from os.path import join, dirname
+from textx import metamodel_from_file
+import json
+from textx import TextXSemanticError
+from ..utils import check_regex, raise_semantic_error, is_keyword,\
+    load_jinja2_template, pretty_render
 
 
-class FromTextXGrammarGenerator:
+class TextMatePattern:
+    def __init__(self, name):
+        self.name = name
+        self.statements = []
 
-    def __init__(self, grammar_path, grammar_pattern_rep):
+
+class TextMateCompoundStatement(TextMatePattern):
+    def __init__(self, name, begin_regex, end_regex):
+        super().__init__(name)
+        self.begin_regex = json.dumps(begin_regex)
+        self.end_regex = json.dumps(end_regex)
+        self.begin_captures_dict = {}
+        self.end_captures_dict = {}
+
+    def __str__(self):
+        template = load_jinja2_template("templates/compound_statement.json")
+        return template.render(compound_statement=self)
+
+
+class TextMateIncludeStatement:
+
+    def __init__(self, include_pattern):
+        self.include_pattern = include_pattern
+
+    def __str__(self):
+        template = load_jinja2_template("templates/include_statement.json")
+        return template.render(include_pattern=self.include_pattern)
+
+
+class TextMateMatchStatement:
+    def __init__(self, regex, scope_name):
+        self.regex = json.dumps(regex)
+        self.scope_name = scope_name
+
+    def __str__(self):
+        template = load_jinja2_template("templates/match_statement.json")
+        return template.render(match_statement=self)
+
+
+class TextXMateMatchFromFileStatement:
+
+    def __init__(self, grammar_path):
         self.grammar_path = grammar_path
-        self.rep = grammar_pattern_rep
         textX = metamodel_from_file("grammar/textX.tx")
         grammar_model = textX.model_from_file(self.grammar_path)
 
@@ -20,6 +59,11 @@ class FromTextXGrammarGenerator:
         self.operators.sort(key=len, reverse=True)
         self.comments = self._get_comments(grammar_model)
         # print(self.keywords)
+        self.statements = [
+            TextMateMatchStatement("|".join(self.keywords), "keyword"),
+            TextMateMatchStatement("|".join(self.operators), "keyword.other"),
+            TextMateMatchStatement("|".join(self.comments), "comment")
+        ]
 
     def _get_comments(self, grammar_model):
         ret_val = []
@@ -58,61 +102,10 @@ class FromTextXGrammarGenerator:
                 pass
         return ret_val
 
-    def _generate_keywords_and_operators(self):
-        keyword_regex = "|".join(self.keywords)
-        operator_regex = "|".join(self.operators)
-
-        if not "repository" in self.rep:
-            self.rep["repository"] = {}
-
-        self.rep["patterns"].append({
-            "include": "#keywords"
-        })
-        self.rep["patterns"].append({
-            "include": "#operators"
-        })
-
-        self.rep["repository"]["keywords"] = {
-            "match": keyword_regex, "name": "keyword"}
-        self.rep["repository"]["operators"] = {
-            "match": operator_regex, "name": "keyword.other"}
-
-    def _generate_comments(self):
-
-        for ind, comment in enumerate(self.comments):
-            self.rep["patterns"].append({
-                "include": "#comment"+str(ind+1)
-            })
-
-            self.rep["repository"]["comment"+str(ind+1)] = {
-                "match": comment, "name": "comment"}
-
-    def generate(self):
-        self._generate_keywords_and_operators()
-        self._generate_comments()
-
-
-class TextMateMatchStatement:
-    def __init__(self, regex, scope_name):
-        self.regex = json.dumps(regex)
-        self.scope_name = scope_name
-
-
-class TextMateCompoundStatement:
-    def __init__(self, name, begin_regex, end_regex):
-        self.name = name
-        self.begin_regex = json.dumps(begin_regex)
-        self.end_regex = json.dumps(end_regex)
-        self.begin_captures_dict = {}
-        self.end_captures_dict = {}
-
-
-class TextMatePattern:
-    def __init__(self, name):
-        self.name = name
-        self.include_statements = []
-        self.match_statements = []
-        self.compound_statements = []
+    def __str__(self):
+        template = load_jinja2_template(
+            "templates/match_from_file_statement.json")
+        return template.render(match_from_file_statement=self)
 
 
 class TextMateGrammarGenerator:
@@ -136,15 +129,17 @@ class TextMateGrammarGenerator:
                 "Non existing pattern referenced: "+include.pattern,
                 ast_node=include, model=self.model)
         else:
-            pattern.include_statements.append(include.pattern)
+            pattern.statements.append(
+                TextMateIncludeStatement(include.pattern))
 
-    def _generate_match_from_file_statement(self, match_from_file, patterns):
-        FromTextXGrammarGenerator(
-            match_from_file.grammar_path, patterns).generate()
+    def _generate_match_from_file_statement(self, match_from_file, pattern):
+        statement = TextXMateMatchFromFileStatement(
+            match_from_file.grammar_path)
+        pattern.statements.append(statement)
 
     def _generate_match_statement(self, match, pattern):
         check_regex(match.regex, ast_node=match, model=self.model)
-        pattern.match_statements.append(
+        pattern.statements.append(
             TextMateMatchStatement(match.regex, match.scope_name))
 
     def _generate_captures(self, captures_dict, names):
@@ -158,43 +153,36 @@ class TextMateGrammarGenerator:
                     ast_node=compound, model=self.model)
         compound_statement = TextMateCompoundStatement(
             compound.scope_name, compound.begin_regex, compound.end_regex)
-        pattern.compound_statements.append(compound_statement)
+        pattern.statements.append(compound_statement)
 
         self._generate_captures(
             compound_statement.begin_captures_dict, compound.begin_names)
         self._generate_captures(
             compound_statement.end_captures_dict, compound.end_names)
 
-        for statement in compound.statements:
+        self._generate_statements(label_set, compound, compound_statement)
+
+    def _generate_statements(self, label_set, statement_container, pattern):
+        for statement in statement_container.statements:
             if statement.include:
-                pass
-                # self._generate_include_statement(
-                # label_set, statement.include, )
+                self._generate_include_statement(
+                    label_set, statement.include, pattern)
             elif statement.match:
-                pass
-                # self._generate_match_statement(
-                # statement.match, )
+                self._generate_match_statement(
+                    statement.match, pattern)
+            elif statement.compound:
+                self._generate_compound_statement(label_set,
+                                                  statement.compound, pattern)
+            elif statement.match_from_file:
+                self._generate_match_from_file_statement(
+                    statement.match_from_file, pattern)
 
     def _generate_repository_patterns(self, label_set):
         all_patterns = []
         for grammar_pattern in self.model.grammar_patterns:
-
             all_patterns.append(TextMatePattern(grammar_pattern.name))
-
-            for statement in grammar_pattern.statements:
-                if statement.include:
-                    self._generate_include_statement(
-                        label_set, statement.include, all_patterns[-1])
-                elif statement.match:
-                    self._generate_match_statement(
-                        statement.match, all_patterns[-1])
-                elif statement.compound:
-                    self._generate_compound_statement(label_set,
-                                                      statement.compound, all_patterns[-1])
-                elif statement.match_from_file:
-                    pass
-                    # self._generate_match_from_file_statement(
-                    # statement.match_from_file, repository[grammar_pattern.name])
+            self._generate_statements(
+                label_set, grammar_pattern, all_patterns[-1])
         return all_patterns
 
     def _generate_start_patterns(self, label_set):
@@ -209,10 +197,10 @@ class TextMateGrammarGenerator:
 
     def generate(self):
         label_set = self._get_label_set()
-        template = load_jinja2_template("static/syntaxes/language.json")
+        template = load_jinja2_template("templates/language.json")
         start_patterns = self._generate_start_patterns(label_set)
         all_patterns = self._generate_repository_patterns(label_set)
-        return template.render(
+        return pretty_render(template.render(
             name=self.model.scope_name,
             start_patterns=start_patterns,
-            all_patterns=all_patterns)
+            all_patterns=all_patterns))
