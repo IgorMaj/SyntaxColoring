@@ -33,9 +33,36 @@ MatchStatement:
     'match' ':' regex=STRING 'name' ':' scope_name=QuotedScopeName
 ;
 
-MatchFromFileStatement:
-    'match_from_file' ':' grammar_path=STRING
+
+ConfigStatement:
+    KeyWordsConfigStatement | OperatorsConfigStatement | StringsLiteralConfigStatement
+    | NumericLiteralsConfigStatement
 ;
+
+KeyWordsConfigStatement:
+    'keywords' ':' regex=STRING
+;
+
+OperatorsConfigStatement:
+    'operators' ':' regex=STRING
+;
+
+StringsLiteralConfigStatement:
+    'string_literals' ':' regex=STRING
+;
+
+NumericLiteralsConfigStatement:
+    'numeric_literals' ':' regex=STRING
+;
+
+MatchFromFileConfig:
+    '('
+        statements *= ConfigStatement
+    ')'
+;
+
+MatchFromFileStatement:
+    'match_from_file' ':' grammar_path=STRING  config_statements=MatchFromFileConfig?;
 
 CompoundStatement:
     'begin' ':' begin_regex=STRING 'names' ': ' begin_names+=QuotedScopeName [',']

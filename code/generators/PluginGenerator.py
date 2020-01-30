@@ -27,7 +27,9 @@ class PluginGenerator:
         meta_model = metamodel_from_file("grammar/coloring.tx")
         meta_model.register_obj_processors(
             {'QuotedScopeName': lambda scope: scope.scopeName,
-             'PatternId': lambda id: id[1:]})  # to remove '#'
+             'PatternId': lambda id: id[1:],  # to  remove '#'
+             'MatchFromFileConfig': lambda config: config.statements
+             })
         return meta_model
 
     def _generate_package_json(self, plugin_path, package_path, scope_name, grammar_path):

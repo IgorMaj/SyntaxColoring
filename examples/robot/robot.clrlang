@@ -1,6 +1,11 @@
 #robot:
-    match: "up" name: "variable.parameter"
-    match_from_file: "examples/robot/robot.tx"
+    match_from_file: "examples/robot/robot.tx" (
+        keywords: "keyword"
+        operators: "keyword.other"
+        //string_literals: "string"
+        numeric_literals: "constant.numeric"
+    ) // Paren config expression is optional 
+      // this is also valid -> match_from_file: "examples/robot/robot.tx"
+      // Keywords and operators have default values
     //match: "up" name: "keyword"
-
 start robot(robot)

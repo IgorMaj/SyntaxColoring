@@ -47,8 +47,16 @@ class TextMateMatchStatement:
 
 class TextXMateMatchFromFileStatement:
 
-    def __init__(self, grammar_path):
-        self.grammar_path = grammar_path
+    def __init__(self, match_from_file):
+        self.grammar_path = match_from_file.grammar_path
+
+        self.keyword_match = "keyword"
+        self.operator_match = "keyword.other"
+        self.string_literal_match = ""
+        self.numeric_literal_match = ""
+
+        self._set_match_config(match_from_file)
+
         textX = metamodel_from_file("grammar/textX.tx")
         grammar_model = textX.model_from_file(self.grammar_path)
 
@@ -58,12 +66,35 @@ class TextXMateMatchFromFileStatement:
         self.keywords.sort(key=len, reverse=True)
         self.operators.sort(key=len, reverse=True)
         self.comments = self._get_comments(grammar_model)
-        # print(self.keywords)
+
         self.statements = [
-            TextMateMatchStatement("|".join(self.keywords), "keyword"),
-            TextMateMatchStatement("|".join(self.operators), "keyword.other"),
+            TextMateMatchStatement(
+                "|".join(self.keywords), self.keyword_match),
+            TextMateMatchStatement(
+                "|".join(self.operators), self.operator_match),
             TextMateMatchStatement("|".join(self.comments), "comment")
         ]
+
+        if self.string_literal_match:
+            self.statements.append(TextMateMatchStatement(
+                "\"(\\.|[^\"])*\"", self.string_literal_match))
+            self.statements.append(TextMateMatchStatement(
+                "\'(\\.|[^\'])*\'", self.string_literal_match))
+
+        if self.numeric_literal_match:
+            self.statements.append(TextMateMatchStatement(
+                "-?[0-9]+(\\.[0-9]+)?", self.numeric_literal_match))
+
+    def _set_match_config(self, match_from_file):
+        for config_statement in match_from_file.config_statements:
+            if config_statement.__class__.__name__ == "KeyWordsConfigStatement":
+                self.keyword_match = config_statement.regex
+            elif config_statement.__class__.__name__ == "OperatorsConfigStatement":
+                self.operator_match = config_statement.regex
+            elif config_statement.__class__.__name__ == "StringsLiteralConfigStatement":
+                self.string_literal_match = config_statement.regex
+            elif config_statement.__class__.__name__ == "NumericLiteralsConfigStatement":
+                self.numeric_literal_match = config_statement.regex
 
     def _get_comments(self, grammar_model):
         ret_val = []
@@ -134,7 +165,7 @@ class TextMateGrammarGenerator:
 
     def _generate_match_from_file_statement(self, match_from_file, pattern):
         statement = TextXMateMatchFromFileStatement(
-            match_from_file.grammar_path)
+            match_from_file)
         pattern.statements.append(statement)
 
     def _generate_match_statement(self, match, pattern):
