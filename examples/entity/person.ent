@@ -7,5 +7,5 @@ entity Person {
 entity Address {
   street : string
   city : string
-  country : string
+  country:string
 }
