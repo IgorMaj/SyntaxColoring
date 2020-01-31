@@ -115,7 +115,7 @@ class TextXMateMatchFromFileStatement:
         return ret_val
 
     def _get_terminals(self, grammar_model):
-        ret_val = []
+        ret_val = set()
         for rule in grammar_model.rules:
             try:
                 for sequence in rule.body.sequences:
@@ -124,7 +124,7 @@ class TextXMateMatchFromFileStatement:
                             try:
                                 str_match = rep_expr.expr.simple_match.str_match
                                 terminal = str_match.match
-                                ret_val.append(terminal)
+                                ret_val.add(terminal)
                             except AttributeError:
                                 pass
                     except AttributeError:

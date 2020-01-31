@@ -2,8 +2,9 @@ import json
 from .TextMateGenerator import TextMateGrammarGenerator
 from textx import metamodel_from_file
 from pathlib import Path
-from code.utils import get_home_dir, remove_dir, copy_file, dump_to_file, \
+from ..utils import get_home_dir, remove_dir, copy_file, dump_to_file, \
     get_filename_no_ext, value_or_default_if_none, load_json_file
+from ..obj_preprocessors import match_from_file_preprocessor
 
 ROOT_PATH = "./static"
 
@@ -28,7 +29,8 @@ class PluginGenerator:
         meta_model.register_obj_processors(
             {'QuotedScopeName': lambda scope: scope.scopeName,
              'PatternId': lambda id: id[1:],  # to  remove '#'
-             'MatchFromFileConfig': lambda config: config.statements
+             'MatchFromFileConfig': lambda config: config.statements,
+             'MatchFromFileStatement': match_from_file_preprocessor
              })
         return meta_model
 
