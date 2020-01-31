@@ -1,0 +1,10 @@
+#main:
+    begin: "entity" names: "keyword"
+    end: "{" names: "keyword.other"
+    (match: "[a-zA-Z][a-zA-Z_0-9]*" name: "support.class")
+    
+    begin: ":" names: "keyword.other"
+    end: "[a-zA-Z][a-zA-Z_0-9]*" names: "entity.name.function"
+
+    match_from_file: "examples/entity/entity.tx"
+start entity(main)   

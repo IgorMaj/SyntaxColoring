@@ -175,7 +175,7 @@ class TextMateGrammarGenerator:
 
     def _generate_captures(self, captures_dict, names):
         for i in range(len(names)):
-            captures_dict[str(i+1)] = names[i]
+            captures_dict[str(i)] = names[i]
 
     def _generate_compound_statement(self, label_set, compound, pattern):
         check_regex(compound.begin_regex,
