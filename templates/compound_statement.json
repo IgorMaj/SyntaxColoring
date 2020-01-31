@@ -1,6 +1,8 @@
 {% from "templates/macros.jinja2" import show_statements with context %}
 {
-    "name": "{{-compound_statement.name-}}",
+    {%- if  compound_statement.name != "" -%}
+       "name": "{{-compound_statement.name-}}",
+    {%- endif -%}
     "begin": {{-compound_statement.begin_regex-}},
     "end": {{-compound_statement.end_regex-}},
      "beginCaptures": {

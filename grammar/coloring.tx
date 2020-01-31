@@ -67,7 +67,7 @@ MatchFromFileStatement:
 CompoundStatement:
     'begin' ':' begin_regex=STRING 'names' ': ' begin_names+=QuotedScopeName [',']
     'end' ':' end_regex=STRING 'names' ': ' end_names+=QuotedScopeName [',']
-    'name' ':' scope_name=STRING '(' statements*=PatternStatement ')'
+    ('name' ':' scope_name=STRING )? ('(' statements*=PatternStatement ')')?
 ;
 
 Comment:

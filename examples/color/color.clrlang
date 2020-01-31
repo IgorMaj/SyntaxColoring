@@ -19,9 +19,9 @@
     match: "//.*?$" name: "comment.line"
     include: comment_block
 #comment_block:
-    begin: "\/\*" names: "comment"
-    end: "\*\/" names: "comment"
-    name: "comment.block" ()   
+    begin: "\/\*" names: "comment.block"
+    end: "\*\/" names: "comment.block"
+    name:"comment"  
    
 // this is a comment
 start clrlang(element,keyword,language_elements,string,comment,incl_statement)
