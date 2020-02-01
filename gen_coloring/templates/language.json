@@ -1,4 +1,4 @@
-{% from "templates/macros.jinja2" import show_statements with context %}
+{% from "macros.jinja2" import show_statements with context %}
 {
   "name": "{{name}}",
   "scopeName": "source.{{name}}",

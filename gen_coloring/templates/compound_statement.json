@@ -1,4 +1,4 @@
-{% from "templates/macros.jinja2" import show_statements with context %}
+{% from "macros.jinja2" import show_statements with context %}
 {
     {%- if  compound_statement.name != "" -%}
        "name": "{{-compound_statement.name-}}",

@@ -6,6 +6,7 @@ import shutil
 import os
 import json
 import jinja2
+from . import MODULE_DIR_PATH
 
 
 def is_regex_valid(regex):
@@ -82,7 +83,8 @@ def is_keyword(str_val):
 
 
 def load_jinja2_template(template_path):
-    templateLoader = jinja2.FileSystemLoader(searchpath="./")
+    templateLoader = jinja2.FileSystemLoader(
+        searchpath=MODULE_DIR_PATH+"templates")
     templateEnv = jinja2.Environment(loader=templateLoader)
     template = templateEnv.get_template(template_path)
     return template
@@ -90,3 +92,15 @@ def load_jinja2_template(template_path):
 
 def pretty_render(json_str):
     return json.dumps(json.loads(json_str), indent=4)
+
+
+def extract_relative_path(file_path, relative_dir):
+    ret_path = []
+    append = False
+    for elem in file_path.split("/"):
+        if append:
+            ret_path.append(elem)
+        if elem == "static":
+            append = True
+
+    return "/".join(ret_path)

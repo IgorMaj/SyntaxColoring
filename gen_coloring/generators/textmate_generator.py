@@ -4,6 +4,7 @@ import json
 from textx import TextXSemanticError
 from ..utils import check_regex, raise_semantic_error, is_keyword,\
     load_jinja2_template, pretty_render
+from . import MODULE_DIR_PATH
 
 
 class TextMatePattern:
@@ -21,7 +22,7 @@ class TextMateCompoundStatement(TextMatePattern):
         self.end_captures_dict = {}
 
     def __str__(self):
-        template = load_jinja2_template("templates/compound_statement.json")
+        template = load_jinja2_template("compound_statement.json")
         return template.render(compound_statement=self)
 
 
@@ -31,7 +32,7 @@ class TextMateIncludeStatement:
         self.include_pattern = include_pattern
 
     def __str__(self):
-        template = load_jinja2_template("templates/include_statement.json")
+        template = load_jinja2_template("include_statement.json")
         return template.render(include_pattern=self.include_pattern)
 
 
@@ -41,7 +42,7 @@ class TextMateMatchStatement:
         self.scope_name = scope_name
 
     def __str__(self):
-        template = load_jinja2_template("templates/match_statement.json")
+        template = load_jinja2_template("match_statement.json")
         return template.render(match_statement=self)
 
 
@@ -57,7 +58,7 @@ class TextXMateMatchFromFileStatement:
 
         self._set_match_config(match_from_file)
 
-        textX = metamodel_from_file("grammar/textX.tx")
+        textX = metamodel_from_file(MODULE_DIR_PATH+"../grammar/textX.tx")
         grammar_model = textX.model_from_file(self.grammar_path)
 
         terminals = self._get_terminals(grammar_model)
@@ -134,8 +135,7 @@ class TextXMateMatchFromFileStatement:
         return ret_val
 
     def __str__(self):
-        template = load_jinja2_template(
-            "templates/match_from_file_statement.json")
+        template = load_jinja2_template("match_from_file_statement.json")
         return template.render(match_from_file_statement=self)
 
 
@@ -228,7 +228,7 @@ class TextMateGrammarGenerator:
 
     def generate(self):
         label_set = self._get_label_set()
-        template = load_jinja2_template("templates/language.json")
+        template = load_jinja2_template("language.json")
         start_patterns = self._generate_start_patterns(label_set)
         all_patterns = self._generate_repository_patterns(label_set)
         return pretty_render(template.render(

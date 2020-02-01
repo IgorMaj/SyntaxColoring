@@ -1,2 +1,0 @@
-{% from "templates/macros.jinja2" import show_statements with context %}
-{{show_statements(match_from_file_statement)}}
