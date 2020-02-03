@@ -37,7 +37,8 @@ setup(
     include_package_data=True,
     install_requires=["click", "jinja2", "textx"],
     entry_points={
-        "textx_generators": ["gen_coloring = gen_coloring:textmate_gen_coloring"]
+        "textx_generators": ["easy_gen_coloring = gen_coloring.coloring_entry_point:textmate_gen_coloring"],
+        "textx_languages": ["easy_coloring_lang = gen_coloring.coloring_entry_point:easy_coloring_lang"]
     },
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

@@ -1,11 +1,10 @@
 import json
 from .textmate_generator import TextMateGrammarGenerator
-from textx import metamodel_from_file
 from pathlib import Path
 from ..utils import get_home_dir, remove_dir, copy_file, dump_to_file, \
     get_filename_no_ext, value_or_default_if_none, load_json_file, extract_relative_path
-from ..obj_preprocessors import match_from_file_preprocessor
 from . import MODULE_DIR_PATH
+from . import load_metamodel
 
 ROOT_PATH = MODULE_DIR_PATH+"../static"
 
@@ -13,7 +12,7 @@ ROOT_PATH = MODULE_DIR_PATH+"../static"
 class VSCPluginGenerator:
 
     def __init__(self, args):
-        self._meta_model = self._load_metamodel()
+        self._meta_model = load_metamodel()
         self._args = args
         self._file_list = self._get_file_list()
         # print(self._file_list)
@@ -24,17 +23,6 @@ class VSCPluginGenerator:
             if not path.is_dir():
                 ret_val.append(str(path).replace("\\", "/"))
         return ret_val
-
-    def _load_metamodel(self):
-        meta_model = metamodel_from_file(
-            MODULE_DIR_PATH+"../grammar/coloring.tx")
-        meta_model.register_obj_processors(
-            {'QuotedScopeName': lambda scope: scope.scopeName,
-             'PatternId': lambda id: id[1:],  # to  remove '#'
-             'MatchFromFileConfig': lambda config: config.statements,
-             'MatchFromFileStatement': match_from_file_preprocessor
-             })
-        return meta_model
 
     def _generate_package_json(self, plugin_path, package_path, scope_name, grammar_path):
         package_json_obj = load_json_file(package_path)
