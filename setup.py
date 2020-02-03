@@ -17,16 +17,15 @@ packages = find_packages()
 
 print("packages:", packages)
 
-# README = codecs.open(
-#    os.path.join(os.path.dirname(__file__), "README.md"), "r", encoding="utf-8"
-# ).read()
+README = codecs.open(
+    os.path.join(os.path.dirname(__file__), "README.md"), "r", encoding="utf-8").read()
 
 
 setup(
     name=PACKAGE_NAME,
     version=VERSION,
     description=DESCRIPTION,
-    # long_description=README,
+    long_description=README,
     long_description_content_type="text/markdown",
     url=URL,
     author=AUTHOR,

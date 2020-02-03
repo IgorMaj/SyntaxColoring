@@ -1,0 +1,3 @@
+recursive-include gen_coloring/grammar *
+recursive-include gen_coloring/templates *
+recursive-include gen_coloring/static *

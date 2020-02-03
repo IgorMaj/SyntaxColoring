@@ -1,6 +1,7 @@
 from textx import LanguageDesc, GeneratorDesc
 from .generators import load_metamodel
 from .generators.textmate_generator import TextMateGrammarGenerator
+from .utils import dump_to_file
 
 
 def easy_clr_metamodel():
@@ -8,7 +9,12 @@ def easy_clr_metamodel():
 
 
 def fast_textmate_generator(metamodel, model, output_path, overwrite, debug, **custom_args):
-    return TextMateGrammarGenerator(model).generate()
+    ret_val = TextMateGrammarGenerator(model).generate()
+    if not output_path:
+        print(ret_val)
+    else:
+        dump_to_file(ret_val, output_path)
+    return ret_val
 
 
 easy_coloring_lang = LanguageDesc('EasyColorLang',
