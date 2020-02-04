@@ -115,7 +115,7 @@ This will generate the whole Visual Studio Code plugin for syntax highlighting. 
 to be restarted in order for changes to take effect. Required positional arguments are: *path to the eclr grammar file*,
 *language name* and *language file extension*. There are also optional arguments such as *-description*. You can call the script with
  *-h* argument to see them all.
- This project was developed using textX and it is possible to register it as its language and textmate generator.
+ This project was developed using *textX* and it is possible to register it as its language and textmate generator.
  One easy way to do this is to run the following command in the project directory:
  
  ```pip install .```
@@ -135,7 +135,67 @@ See the [docs](https://textx.github.io/textX/stable/registration/) for more deta
 
 ## Language grammar
 
-//TODO language grammar explanation
+EasyColorLang has a relatively simple, yet flexible grammar. A typical file is composed of one or more patterns with the following
+syntax:
+
+```
+#pattern_example:
+  statements...
+```
+
+Defining the same pattern (same name) twice will result in a semantic error.
+At the end of the file there is a special start statement which specifies scope name, as well as starting patterns:
+
+```
+start scope_name(start_pattern1,start_pattern2...)
+```
+
+### Comments
+
+EasyColorLang supports single line comments ``` // ``` as well as multi-line (block) comments ``` /* example content */ ```. 
+
+### Pattern statements
+
+There are several types of pattern statements. Include statements can include other patterns in their pattern.
+  
+```
+include: other_pattern_name
+```
+
+Referencing non existing pattern name will result in semantic error.
+Match statement takes scope name and Ruby regular expression:
+
+```
+match: "some_regex" name: "some.textmate.scope"
+```
+
+Match from file is a special kind of statement designed to speed up grammar development, if *textX* grammar
+is already available. It automatically extracts keywords, operators and comments:
+
+```
+match_from_file: "examples/robot/robot.tx" (
+        keywords: "keyword"
+        operators: "keyword.other"
+        //string_literals: "string"
+        numeric_literals: "constant.numeric"
+    ) // Paren config expression is optional 
+      // this is also valid -> match_from_file: "examples/robot/robot.tx"
+      
+```
+
+As can be seen it is possible to specify scope name for keywords, operators and literals. Keywords and operators have default scopes,
+while literals need to be specified if one wants them highlighted at all. 
+
+Compound statements are composed out of other statements. They have a beginning and an end match. Other statements can be nested inside them, including other compound statements. The have the following syntax: 
+
+```
+    begin: "regex1" names: "name1","name2"...
+    end: "regex2" names: "name1","name2"...
+    name: "keyword"? (
+        statements
+    )?
+```
+The *?* sign means that the statement part is optional. In this example *name* part and paren expression *()* which contains other statements are optional. 
 
 ## License
 
