@@ -4,7 +4,7 @@
 
 EasyColorLang is a domain specific language (DSL) which enables you to generate [TextMate](https://macromates.com/manual/en/language_grammars) grammars used for
 language coloring. Although the json format of these grammars is fairly flexible and readable, they tend to get complex relatively quickly.
-This makes expanding and maintaining much harder. Some solutions have been proposed, with the main one being converting the grammar to [Yaml](https://yaml.org/).
+This makes expanding and maintaining them much harder. Some solutions have been proposed, with the main one being converting the grammar to [Yaml](https://yaml.org/).
 Afterwards, one could do the required editing, then convert back. In order to further cut the development time and costs, this DSL has been developed.
 It uses [textX](https://github.com/textX/textX), a meta language for writing DSLs, for parsing and AST generating. [Jinja2](https://jinja.palletsprojects.com/en/2.11.x/), a template language,
 is used to generate properly formatted json.
@@ -156,13 +156,14 @@ EasyColorLang supports single line comments ``` // ``` as well as multi-line (bl
 
 ### Pattern statements
 
-There are several types of pattern statements. Include statements can include other patterns in their pattern.
+There are several types of pattern statements. Include statements can include other pattern references in their parent pattern.
   
 ```
 include: other_pattern_name
 ```
 
-Referencing non existing pattern name will result in semantic error.
+Referencing non existing pattern name will result in a semantic error.
+
 Match statement takes scope name and Ruby regular expression:
 
 ```
