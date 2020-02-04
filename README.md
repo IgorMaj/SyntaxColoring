@@ -107,7 +107,15 @@ An example file in this _Entity_ language looks like this in IDE (Visual Studio 
 
 ## Setup and use
 
-After cloning/downloading the repository...
+After cloning/downloading the repository, the easiest way is to run the following script:
+
+```python generate_vsc_plugin.py  examples/color/color.eclr EasyColorLang  .eclr```
+
+This will generate the whole Visual Studio Code plugin for syntax highlighting. The IDE will need
+to be restarted in order for changes to take effect. Required positional arguments are: *path to the eclr grammar file*,
+*language name* and *language file extension*. There are also optional arguments such as *-description*. You can call the script with
+ *-h* argument to see them all. 
+
 
 ## Language grammar
 
