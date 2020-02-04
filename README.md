@@ -114,8 +114,24 @@ After cloning/downloading the repository, the easiest way is to run the followin
 This will generate the whole Visual Studio Code plugin for syntax highlighting. The IDE will need
 to be restarted in order for changes to take effect. Required positional arguments are: *path to the eclr grammar file*,
 *language name* and *language file extension*. There are also optional arguments such as *-description*. You can call the script with
- *-h* argument to see them all. 
+ *-h* argument to see them all.
+ This project was developed using textX and it is possible to register it as its language and textmate generator.
+ One easy way to do this is to run the following command in the project directory:
+ 
+ ```pip install .```
 
+Afterwards, it is possible to check if textX can find the language and generator:
+
+```
+   textx list-generators
+   textx list-languages
+```
+To generate the textmate json you can run the following command:
+
+```
+textX generate --target textmate ./examples/color/color.eclr --output-path output.json
+```
+See the [docs](https://textx.github.io/textX/stable/registration/) for more details. 
 
 ## Language grammar
 
