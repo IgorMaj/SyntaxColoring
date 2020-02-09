@@ -182,7 +182,7 @@ matches_from_grammar: "robot.tx" (
         //string_literals: "string"
         numeric_literals: "constant.numeric"
     ) // Paren config expression is optional
-      // this is also valid -> match_from_file: "robot.tx"
+      // this is also valid -> matches_from_grammar: "robot.tx"
 
 ```
 
