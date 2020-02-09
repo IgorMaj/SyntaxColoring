@@ -11,9 +11,9 @@
         match: "[a-z_][a-zA-Z_0-9]*" name: "support.function"
     )    
 #keyword:
-    match: "names|start|match_from_file|match|name|begin|end|string_literals|numeric_literals|keywords|operators" 
+    match: "names|start|matches_from_grammar|match|name|begin|end|string_literals|numeric_literals|keywords|operators" 
     name: "keyword"
-    /* match from file, pogotovo za vece matcheve, textx gramatika upotrebom
+    /* matches from grammar, pogotovo za vece matcheve, textx gramatika upotrebom
        textxa */
 #language_elements:
     match: "\(|\)|\:" name: "constant.language"

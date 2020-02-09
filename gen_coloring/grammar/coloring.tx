@@ -22,7 +22,7 @@ PatternId:
 
 PatternStatement:
     include=IncludeStatement | match=MatchStatement | compound=CompoundStatement |
-    match_from_file=MatchFromFileStatement
+    matches_from_grammar=MatchFromGrammarStatement
 ;
 
 IncludeStatement:
@@ -55,14 +55,14 @@ NumericLiteralsConfigStatement:
     'numeric_literals' ':' regex=STRING
 ;
 
-MatchFromFileConfig:
+MatchFromGrammarConfig:
     '('
         statements *= ConfigStatement
     ')'
 ;
 
-MatchFromFileStatement:
-    'match_from_file' ':' grammar_path=STRING  config_statements=MatchFromFileConfig?;
+MatchFromGrammarStatement:
+    'matches_from_grammar' ':' grammar_path=STRING  config_statements=MatchFromGrammarConfig?;
 
 CompoundStatement:
     'begin' ':' begin_regex=STRING 'names' ': ' begin_names+=QuotedScopeName [',']

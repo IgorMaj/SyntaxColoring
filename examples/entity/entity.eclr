@@ -7,5 +7,5 @@
     end: "[a-zA-Z][a-zA-Z_0-9]*" names: "entity.name.function"
     (match:"\s*:\s*" name:"keyword.other")
 
-    match_from_file: "examples/entity/entity.tx"
+    matches_from_grammar: "entity.tx"
 start entity(main)   

@@ -60,7 +60,7 @@ def value_or_default_if_none(value1, value2):
 
 
 def get_home_dir():
-    return str(Path.home()).replace("\\", "/")
+    return str(Path.home())
 
 
 def dump_to_file(obj_string, file_path):
@@ -84,7 +84,7 @@ def is_keyword(str_val):
 
 def load_jinja2_template(template_path):
     templateLoader = jinja2.FileSystemLoader(
-        searchpath=MODULE_DIR_PATH+"templates")
+        searchpath=os.path.join(MODULE_DIR_PATH, "templates"))
     templateEnv = jinja2.Environment(loader=templateLoader)
     template = templateEnv.get_template(template_path)
     return template
@@ -97,10 +97,10 @@ def pretty_render(json_str):
 def extract_relative_path(file_path, relative_dir):
     ret_path = []
     append = False
-    for elem in file_path.split("/"):
+    for elem in file_path.split(os.sep):
         if append:
             ret_path.append(elem)
         if elem == "static":
             append = True
 
-    return "/".join(ret_path)
+    return os.path.join(*ret_path)

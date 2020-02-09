@@ -16,7 +16,7 @@ There are different types of statements which will be discussed below. At the en
 is possible to specify scope name, as well as starting patterns for matching.
 
 ```
-  #main:
+#main:
     begin: "entity" names: "keyword"
     end: "{" names: "keyword.other"
     (match: "[a-zA-Z][a-zA-Z_0-9]*" name: "support.class")
@@ -25,7 +25,7 @@ is possible to specify scope name, as well as starting patterns for matching.
     end: "[a-zA-Z][a-zA-Z_0-9]*" names: "entity.name.function"
     (match:"\s*:\s*" name:"keyword.other")
 
-    match_from_file: "examples/entity/entity.tx"
+    matches_from_grammar: "entity.tx"
 start entity(main)
 ```
 
@@ -109,16 +109,16 @@ An example file in this _Entity_ language looks like this in IDE (Visual Studio 
 
 After cloning/downloading the repository, the easiest way is to run the following script:
 
-```python generate_vsc_plugin.py  examples/color/color.eclr EasyColorLang  .eclr```
+`python generate_vsc_plugin.py examples/color/color.eclr EasyColorLang .eclr`
 
 This will generate the whole Visual Studio Code plugin for syntax highlighting. The IDE will need
-to be restarted in order for changes to take effect. Required positional arguments are: *path to the eclr grammar file*,
-*language name* and *language file extension*. There are also optional arguments such as *-description*. You can call the script with
- *-h* argument to see them all.
- This project was developed using *textX* and it is possible to register it as its language and textmate generator.
- One easy way to do this is to run the following command in the project directory:
- 
- ```pip install .```
+to be restarted in order for changes to take effect. Required positional arguments are: _path to the eclr grammar file_,
+_language name_ and _language file extension_. There are also optional arguments such as _-description_. You can call the script with
+_-h_ argument to see them all.
+This project was developed using _textX_ and it is possible to register it as its language and textmate generator.
+One easy way to do this is to run the following command in the project directory:
+
+`pip install .`
 
 Afterwards, it is possible to check if textX can find the language and generator:
 
@@ -126,12 +126,14 @@ Afterwards, it is possible to check if textX can find the language and generator
    textx list-generators
    textx list-languages
 ```
+
 To generate the textmate json you can run the following command:
 
 ```
 textX generate --target textmate ./examples/color/color.eclr --output-path output.json
 ```
-See the [docs](https://textx.github.io/textX/stable/registration/) for more details. 
+
+See the [docs](https://textx.github.io/textX/stable/registration/) for more details.
 
 ## Language grammar
 
@@ -152,12 +154,12 @@ start scope_name(start_pattern1,start_pattern2...)
 
 ### Comments
 
-EasyColorLang supports single line comments ``` // ``` as well as multi-line (block) comments ``` /* example content */ ```. 
+EasyColorLang supports single line comments `//` as well as multi-line (block) comments `/* example content */`.
 
 ### Pattern statements
 
 There are several types of pattern statements. Include statements can include other pattern references in their parent pattern.
-  
+
 ```
 include: other_pattern_name
 ```
@@ -170,24 +172,24 @@ Match statement takes scope name and Ruby regular expression:
 match: "some_regex" name: "some.textmate.scope"
 ```
 
-Match from file is a special kind of statement designed to speed up grammar development, if *textX* grammar
+Matches from grammar is a special kind of statement designed to speed up grammar development, if _textX_ grammar
 is already available. It automatically extracts keywords, operators and comments:
 
 ```
-match_from_file: "examples/robot/robot.tx" (
+matches_from_grammar: "robot.tx" (
         keywords: "keyword"
         operators: "keyword.other"
         //string_literals: "string"
         numeric_literals: "constant.numeric"
-    ) // Paren config expression is optional 
-      // this is also valid -> match_from_file: "examples/robot/robot.tx"
-      
+    ) // Paren config expression is optional
+      // this is also valid -> match_from_file: "robot.tx"
+
 ```
 
 As can be seen it is possible to specify scope name for keywords, operators and literals. Keywords and operators have default scopes,
-while literals need to be specified if one wants them highlighted at all. 
+while literals need to be specified if one wants them highlighted at all.
 
-Compound statements are composed out of other statements. They have a beginning and an end match. Other statements can be nested inside them, including other compound statements. The have the following syntax: 
+Compound statements are composed out of other statements. They have a beginning and an end match. Other statements can be nested inside them, including other compound statements. The have the following syntax:
 
 ```
     begin: "regex1" names: "name1","name2"...
@@ -196,7 +198,8 @@ Compound statements are composed out of other statements. They have a beginning 
         statements
     )?
 ```
-The *?* sign means that the statement part is optional. In this example *name* part and paren expression *()* which contains other statements are optional. 
+
+The _?_ sign means that the statement part is optional. In this example _name_ part and paren expression _()_ which contains other statements are optional.
 
 ## License
 

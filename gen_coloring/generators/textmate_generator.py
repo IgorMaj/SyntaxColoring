@@ -46,19 +46,20 @@ class TextMateMatchStatement:
         return template.render(match_statement=self)
 
 
-class TextXMateMatchFromFileStatement:
+class TextXMateMatchFromGrammarStatement:
 
-    def __init__(self, match_from_file):
-        self.grammar_path = match_from_file.grammar_path
+    def __init__(self, matches_from_grammar, root_dir):
+        self.grammar_path = join(root_dir, matches_from_grammar.grammar_path)
 
         self.keyword_match = "keyword"
         self.operator_match = "keyword.other"
         self.string_literal_match = ""
         self.numeric_literal_match = ""
 
-        self._set_match_config(match_from_file)
+        self._set_match_config(matches_from_grammar)
 
-        textX = metamodel_from_file(MODULE_DIR_PATH+"../grammar/textX.tx")
+        textX = metamodel_from_file(join(
+            MODULE_DIR_PATH, "..", "grammar", "textX.tx"))
         grammar_model = textX.model_from_file(self.grammar_path)
 
         terminals = self._get_terminals(grammar_model)
@@ -86,8 +87,8 @@ class TextXMateMatchFromFileStatement:
             self.statements.append(TextMateMatchStatement(
                 "-?[0-9]+(\\.[0-9]+)?", self.numeric_literal_match))
 
-    def _set_match_config(self, match_from_file):
-        for config_statement in match_from_file.config_statements:
+    def _set_match_config(self, matches_from_grammar):
+        for config_statement in matches_from_grammar.config_statements:
             if config_statement.__class__.__name__ == "KeyWordsConfigStatement":
                 self.keyword_match = config_statement.regex
             elif config_statement.__class__.__name__ == "OperatorsConfigStatement":
@@ -135,7 +136,7 @@ class TextXMateMatchFromFileStatement:
         return ret_val
 
     def __str__(self):
-        template = load_jinja2_template("match_from_file_statement.json")
+        template = load_jinja2_template("matches_from_grammar_statement.json")
         return template.render(match_from_file_statement=self)
 
 
@@ -143,6 +144,7 @@ class TextMateGrammarGenerator:
 
     def __init__(self, model):
         self.model = model
+        self.model_file_dir = dirname(model._tx_filename)
 
     def _get_label_set(self):
         ret_val = set()
@@ -163,9 +165,9 @@ class TextMateGrammarGenerator:
             pattern.statements.append(
                 TextMateIncludeStatement(include.pattern))
 
-    def _generate_match_from_file_statement(self, match_from_file, pattern):
-        statement = TextXMateMatchFromFileStatement(
-            match_from_file)
+    def _generate_matches_from_grammar_statement(self, matches_from_grammar, pattern):
+        statement = TextXMateMatchFromGrammarStatement(
+            matches_from_grammar, self.model_file_dir)
         pattern.statements.append(statement)
 
     def _generate_match_statement(self, match, pattern):
@@ -204,9 +206,9 @@ class TextMateGrammarGenerator:
             elif statement.compound:
                 self._generate_compound_statement(label_set,
                                                   statement.compound, pattern)
-            elif statement.match_from_file:
-                self._generate_match_from_file_statement(
-                    statement.match_from_file, pattern)
+            elif statement.matches_from_grammar:
+                self._generate_matches_from_grammar_statement(
+                    statement.matches_from_grammar, pattern)
 
     def _generate_repository_patterns(self, label_set):
         all_patterns = []
